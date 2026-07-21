@@ -1,0 +1,7 @@
+node_modules/
+.env
+dist/
+coverage/
+backend/uploads/*
+!backend/uploads/.gitkeep
+npm-debug.log*

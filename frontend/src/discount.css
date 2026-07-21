@@ -1,0 +1,28 @@
+.price-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.discount-line {
+  color: #63d68b;
+}
+.discount-line span {
+  max-width: 75%;
+  text-align: left;
+}
+.ticket-discounts {
+  padding: 18px 0 5px;
+  border-bottom: 1px dashed #958d7d;
+}
+.ticket-discounts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.ticket-discounts > div:not(:first-child) {
+  color: #33764a;
+}
