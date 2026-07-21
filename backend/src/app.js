@@ -8,8 +8,19 @@ import { apiRouter } from "./routes/index.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
 
 export const app = express();
+const allowedOrigins = new Set([
+  env.clientUrl,
+  "http://localhost:5173",
+  "https://cineseat-sigma.vercel.app",
+]);
 app.use(helmet());
-app.use(cors({ origin: env.clientUrl, credentials: true }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked origin: ${origin}`));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 if (env.nodeEnv !== "test") app.use(morgan("dev"));
