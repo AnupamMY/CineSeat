@@ -7,3 +7,4 @@ backend/uploads/*
 npm-debug.log*
 
 .vercel
+mongodb+srv://anupamy316102:<db_password>@cluster0.qo0o81o.mongodb.net/?appName=Cluster
