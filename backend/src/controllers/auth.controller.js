@@ -45,6 +45,19 @@ export async function requestOtp(req, res) {
     );
   }
 
+  const otpStillStored = Boolean(await Otp.exists({ _id: otpRecord._id }));
+  if (!otpStillStored) {
+    throw new ApiError(500, "OTP was created but could not be found after email processing");
+  }
+  const developmentStorageInfo = env.nodeEnv === "development" ? {
+    otpStored: true,
+    otpCollection: Otp.collection.name,
+    expiresAt: otpRecord.expiresAt,
+  } : {};
+  if (env.nodeEnv === "development") {
+    console.log(`[OTP stored] collection=${Otp.collection.name} email=${email} expiresAt=${otpRecord.expiresAt.toISOString()}`);
+  }
+
   if (!delivery.delivered) {
     return res.json({
       success: true,
@@ -52,6 +65,7 @@ export async function requestOtp(req, res) {
         "OTP generated in development preview mode; SMTP is not configured, so no email was sent.",
       emailSent: false,
       developmentOtp: otp,
+      ...developmentStorageInfo,
     });
   }
 
@@ -59,6 +73,7 @@ export async function requestOtp(req, res) {
     success: true,
     message: "OTP sent to your email",
     emailSent: true,
+    ...developmentStorageInfo,
   });
 }
 
@@ -84,7 +99,7 @@ export async function verifyOtp(req, res) {
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: env.nodeEnv === "production",
-    sameSite: "lax",
+    sameSite: env.nodeEnv === "production" ? "none" : "lax",
     maxAge: 86_400_000,
   });
   res.json({
@@ -95,6 +110,10 @@ export async function verifyOtp(req, res) {
 
 export const me = (req, res) => res.json({ success: true, user: req.user });
 export const logout = (req, res) => {
-  res.clearCookie("accessToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: env.nodeEnv === "production",
+    sameSite: env.nodeEnv === "production" ? "none" : "lax",
+  });
   res.json({ success: true });
 };
